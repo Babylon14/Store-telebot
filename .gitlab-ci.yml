@@ -12,7 +12,7 @@ deploy_bot:
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
     - chmod 600 ~/.ssh/id_ed25519
-    - ssh -o StrictHostKeyChecking=no -p 2253 root@192.168.0.35 "
+    - ssh -o StrictHostKeyChecking=no root@192.168.0.35 "
         cd /opt/gitlab/Store_telebot &&
         git pull &&
         source venv/bin/activate &&
