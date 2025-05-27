@@ -5,6 +5,8 @@ deploy_bot:
   stage: deploy
   only:
     - master  # или ваша основная ветка
+  tags:
+    - ansible
   script:
     - echo "Deploying to server..."
     - mkdir -p ~/.ssh
