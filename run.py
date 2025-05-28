@@ -38,7 +38,6 @@ async def startup(dispatcher: Dispatcher):
 # функция срабатывает при выключении бота
 async def shutdown(dispatcher: Dispatcher):
     logging.info("Бот остановлен...")
-    print("Йоу")
 
 
 if __name__ == "__main__":

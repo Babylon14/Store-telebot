@@ -28,3 +28,15 @@ async def get_categories():
     async with async_session() as session:
         return await session.scalars(select(Category))
 
+
+# Создадим функцию которая достает карточки товаров по категории
+async def get_product_by_category(category_id):
+    async with async_session() as session:
+        return await session.scalars(select(Product).where(Product.category_id == category_id))
+
+
+# Создадим функцию которая достает инфо товара по его id
+async def get_product(product_id):
+    async with async_session() as session:
+        return await session.scalar(select(Product).where(Product.id == product_id))
+    

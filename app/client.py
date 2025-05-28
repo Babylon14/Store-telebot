@@ -3,7 +3,7 @@ from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from app.database.requests import set_user, update_user
+from app.database.requests import set_user, update_user, get_product
 import app.keyboards as kb
 
 import re  # Импортируем модуль регулярных выражений
@@ -97,23 +97,41 @@ async def get_reg_phone_number(message: Message, state: FSMContext):
 async def catalog(event: Message | CallbackQuery): 
     if isinstance(event, Message):  # Если ивент - сообщение
         await event.answer("Выберите категорию товара 🛍",
-                            reply_markup=await kb.categories())
+                            reply_markup=await kb.categories_builder())
     else:
         await event.answer("Вы вернулись назад")
         await event.message.edit_text("Выберите категорию товара 🛍",
-                                    reply_markup=await kb.categories())
+                                    reply_markup=await kb.categories_builder())
 
 
 # хендлер по обработке кнопки "Категории"
 @client.callback_query(F.data.startswith("category_"))
 async def products(callback: CallbackQuery):
     await callback.answer()
-    category_id = callback.data.split("_")[1]
+    category_id = int(callback.data.split("_")[1])
     try:
         await callback.message.edit_text(f"Выберите товар ®️",
-                                        reply_markup=await kb.card_builder(category_id))
+                                        reply_markup=await kb.product_builder(category_id))
     except: # Если произошла ошибка
         await callback.message.delete() # Удаляем это сообщение
         await callback.message.answer(f"Выберите товар ®️",
-                                        reply_markup=await kb.card_builder(category_id))
+                                        reply_markup=await kb.product_builder(category_id))
         
+
+# хендлер по обработке отображения "Товара" (С возможностью кнопки "Назад")
+@client.callback_query(F.data.startswith("product_"))
+async def card_info(callback: CallbackQuery):
+    await callback.answer()
+    product_id = int(callback.data.split("_")[1])
+    product = await get_product(product_id=product_id)
+    await callback.message.delete()
+    await callback.message.answer_photo(photo=product.image,
+                                    caption=f"{product.name}\n\n{product.description}\n\n{product.price} RUB",
+                                    reply_markup=await kb.back_to_categories(product.category_id, product_id))
+
+
+# хендлер по получению и обработке фотографии
+@client.message(F.photo)
+async def get_photo(message: Message):
+    await message.answer(message.photo[-1].file_id)
+
