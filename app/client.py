@@ -103,6 +103,13 @@ async def catalog(event: Message | CallbackQuery):
         await event.message.edit_text("Выберите категорию товара 🛍",
                                     reply_markup=await kb.categories_builder())
 
+# хендлер по обработке нажатия на кнопку "Контакты" (С возможностью кнопки "Назад")
+@client.message()
+async def contacts(message: Message):
+    await message.answer("Если у Вас возникли какие-либо вопросы, вот контактный номер: \n"
+                        "имя: Светлана\n"
+                        "н.т. +79605612737")
+
 
 # хендлер по обработке кнопки "Категории"
 @client.callback_query(F.data.startswith("category_"))

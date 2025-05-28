@@ -8,7 +8,7 @@ from app.database.requests import get_categories, get_product_by_category
 # Клавиатура "Меню"
 main_menu = ReplyKeyboardMarkup(keyboard=[
         [KeyboardButton(text="🗂 Каталог")],
-        [KeyboardButton(text="📲 Наши контакты")]
+        [KeyboardButton(text="📲 Контакты")]
     ],
     resize_keyboard=True,
     input_field_placeholder="Выберите пункт меню... ⬇️"
