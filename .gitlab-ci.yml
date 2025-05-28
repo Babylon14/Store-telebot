@@ -1,0 +1,21 @@
+stages:
+  - deploy
+
+deploy_bot:
+  stage: deploy
+  only:
+    - master  # или ваша основная ветка
+  tags:
+    - ansible
+  script:
+    - echo "Deploying to server..."
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+    - chmod 600 ~/.ssh/id_ed25519
+    - ssh -o StrictHostKeyChecking=no root@192.168.0.35 "
+        cd /opt/gitlab/Store_telebot &&
+        git pull &&
+        source venv/bin/activate &&
+        pip install -r requirements.txt &&
+        systemctl restart telebot
+      "
