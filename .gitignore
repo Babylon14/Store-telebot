@@ -1,5 +1,5 @@
 settings.ini
 venv/
-__python__/
-
+__pycache__/
+database/__pycache__
 
