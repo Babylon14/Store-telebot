@@ -49,7 +49,7 @@ class Product(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(length=30))
-    description: Mapped[str] = mapped_column(String(length=256))
+    description: Mapped[str] = mapped_column(String(length=500))
     price: Mapped[int] = mapped_column()
     image: Mapped[str] = mapped_column(String(256))
 

@@ -3,7 +3,7 @@ from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from app.database.requests import set_user, update_user, get_product
+from app.database.requests import set_user, update_user, get_product, get_user
 import app.keyboards as kb
 
 import re  # Импортируем модуль регулярных выражений
@@ -103,12 +103,16 @@ async def catalog(event: Message | CallbackQuery):
         await event.message.edit_text("Выберите категорию товара 🛍",
                                     reply_markup=await kb.categories_builder())
 
+
 # хендлер по обработке нажатия на кнопку "Контакты" (С возможностью кнопки "Назад")
-@client.message()
+@client.message(F.text == "📲 Контакты")
 async def contacts(message: Message):
     await message.answer("Если у Вас возникли какие-либо вопросы, вот контактный номер: \n"
-                        "имя: Светлана\n"
-                        "н.т. +79605612737")
+                         "Имя: Светлана\n"
+                         "Номер телефона: +7 960 561 27 37\n"
+                         "telegram: @Loto67s",
+                            reply_markup=kb.main_menu
+                        )
 
 
 # хендлер по обработке кнопки "Категории"
@@ -127,7 +131,7 @@ async def products(callback: CallbackQuery):
 
 # хендлер по обработке отображения "Товара" (С возможностью кнопки "Назад")
 @client.callback_query(F.data.startswith("product_"))
-async def card_info(callback: CallbackQuery):
+async def product_info(callback: CallbackQuery):
     await callback.answer()
     product_id = int(callback.data.split("_")[1])
     product = await get_product(product_id=product_id)
@@ -135,6 +139,45 @@ async def card_info(callback: CallbackQuery):
     await callback.message.answer_photo(photo=product.image,
                                     caption=f"{product.name}\n\n{product.description}\n\n{product.price} RUB",
                                     reply_markup=await kb.back_to_categories(product.category_id, product_id))
+
+
+# хендлер по обработке кнопки "Купить"
+@client.callback_query(F.data.startswith("buy_"))
+async def client_buy_callback(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    product_id = int(callback.data.split("_")[1]) 
+    await state.set_state("waiting_for_address")
+    await state.update_data(product_id=product_id)
+    await callback.message.answer("Пожалуйста, напишите ваш адрес доставки")
+
+
+'''Хэндлер в случае, если пользователь вводит локацию сам'''
+# хендлер по отлавливанию адреса
+@client.message(StateFilter("waiting_for_address"))
+async def getting_location(message: Message, state: FSMContext):
+    data = await state.get_data()   # достаем полученную инфу об адресе
+    address = message.text
+
+    # Получаем информацию о пользователе по его ID
+    user = await get_user(message.from_user.id)
+    product_id = data.get("product_id")
+
+    # Получаем информацию о товаре по его ID
+    product = await get_product(product_id)
+    product_name = product.name if product else "Неизвестный товар"
+    full_info = (
+        f"🛒 Новый заказ!\n\n"
+        f"👤 Пользователь : {user.name} @{message.from_user.username} (ID: {user.tg_id})\n"
+        f"📞 Телефон: {user.phone_number}\n"
+        f"📍 Адрес: {address}\n"
+        f"📦 Название товара: {product_name}\n"
+        f"®️ Товар ID: {product_id}"
+    )
+    await message.bot.send_message(-1002678206509, full_info) # Это ID нашей группы в телеге
+    await message.answer("Ваш заказ принят! ✅\n\nМенеджер свяжется с вами в ближайшее время...",
+                        reply_markup=kb.main_menu)
+    await state.clear()
+
 
 
 # хендлер по получению и обработке фотографии

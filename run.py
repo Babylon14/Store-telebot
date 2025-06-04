@@ -7,6 +7,9 @@ import configparser
 from app.client import client
 from app.database.models import init_models
 
+# from aiogram.fsm.storage.redis import RedisStorage
+# import redis.asyncio as aioredis
+
 
 # Задаем логирование на уровне инфо
 logging.basicConfig(level=logging.INFO,
