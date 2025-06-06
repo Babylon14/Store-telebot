@@ -6,7 +6,19 @@ from aiogram.fsm.context import FSMContext
 from app.database.requests import set_user, update_user, get_product, get_user
 import app.keyboards as kb
 
-import re  # Импортируем модуль регулярных выражений
+import re  
+import configparser
+
+
+# Читаем настройки из settings.ini
+config = configparser.ConfigParser()
+config.read("settings.ini")
+
+group_id = config["Group"]["group_id"]
+
+name = config["Other"]["name"]
+phone_number = config["Other"]["phone_number"]
+user = config["Other"]["user"]
 
 
 client = Router()
@@ -108,9 +120,9 @@ async def catalog(event: Message | CallbackQuery):
 @client.message(F.text == "📲 Контакты")
 async def contacts(message: Message):
     await message.answer("Если у Вас возникли какие-либо вопросы, вот контактный номер: \n"
-                         "Имя: Светлана\n"
-                         "Номер телефона: +7 960 561 27 37\n"
-                         "telegram: @Loto67s",
+                         f"Имя: {name}\n"
+                         f"Номер телефона: {phone_number}\n"
+                         f"telegram: {user}",
                             reply_markup=kb.main_menu
                         )
 
@@ -120,6 +132,13 @@ async def contacts(message: Message):
 async def products(callback: CallbackQuery):
     await callback.answer()
     category_id = int(callback.data.split("_")[1])
+
+    # Проверяем, если это кнопка "Другие вещи"
+    if category_id == 2:
+        await callback.message.edit_text("Пока что здесь пусто..",
+                                        reply_markup=await kb.product_builder(category_id))
+        return
+    
     try:
         await callback.message.edit_text(f"Выберите товар ®️",
                                         reply_markup=await kb.product_builder(category_id))
@@ -173,15 +192,15 @@ async def getting_location(message: Message, state: FSMContext):
         f"📦 Название товара: {product_name}\n"
         f"®️ Товар ID: {product_id}"
     )
-    await message.bot.send_message(-1002678206509, full_info) # Это ID нашей группы в телеге
-    await message.answer("Ваш заказ принят! ✅\n\nМенеджер свяжется с вами в ближайшее время...",
+    await message.bot.send_message(group_id, full_info) # Это ID нашей группы в телеге
+    await message.answer("Ваш заказ принят! ✅\n\nМы свяжемся с Вами в ближайшее время...",
                         reply_markup=kb.main_menu)
     await state.clear()
-
 
 
 # хендлер по получению и обработке фотографии
 @client.message(F.photo)
 async def get_photo(message: Message):
     await message.answer(message.photo[-1].file_id)
+
 
