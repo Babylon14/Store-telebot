@@ -13,7 +13,12 @@ async def set_user(tg_id):
             return False
         else:
             return True if user.name else False
-        
+
+# Создадим функцию по получению данных от нового пользователя
+async def get_user(tg_id):
+    async with async_session() as session:
+        return await session.scalar(select(User).where(User.tg_id == tg_id))
+
 
 # Создадим функцию по обновлению данных о пользователе
 async def update_user(tg_id, name, phone_number):
