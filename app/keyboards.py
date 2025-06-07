@@ -58,7 +58,7 @@ async def product_builder(category_id):
 # Создание кнопки Покупки и возврата Назад
 async def back_to_categories(category_id, product_id):
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="💰 Купить", callback_data=f"buy_{product_id}")],
+        [InlineKeyboardButton(text="🔗 Связаться с изготовителем", callback_data=f"buy_{product_id}")],
         [InlineKeyboardButton(text="🔙 Назад", callback_data=f"category_{category_id}")]
     ])
 

@@ -167,7 +167,7 @@ async def client_buy_callback(callback: CallbackQuery, state: FSMContext):
     product_id = int(callback.data.split("_")[1]) 
     await state.set_state("waiting_for_address")
     await state.update_data(product_id=product_id)
-    await callback.message.answer("Пожалуйста, напишите ваш адрес доставки")
+    await callback.message.answer("Пожалуйста, напишите место Вашего проживания")
 
 
 '''Хэндлер в случае, если пользователь вводит локацию сам'''
@@ -193,7 +193,7 @@ async def getting_location(message: Message, state: FSMContext):
         f"®️ Товар ID: {product_id}"
     )
     await message.bot.send_message(group_id, full_info) # Это ID нашей группы в телеге
-    await message.answer("Ваш заказ принят! ✅\n\nМы свяжемся с Вами в ближайшее время...",
+    await message.answer("Принято! ✅\n\nМы свяжемся с Вами в ближайшее время...",
                         reply_markup=kb.main_menu)
     await state.clear()
 
